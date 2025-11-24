@@ -13,8 +13,11 @@ warehouse_manager = WarehouseManager()
 @app.route('/')
 def index():
     """Display all warehouses and their items."""
-    warehouses = warehouse_manager.get_all_warehouses()
-    return render_template('index.html', warehouses=warehouses)
+    sort_by = request.args.get('sort', 'newest')
+    warehouses = warehouse_manager.get_all_warehouses(sort_by=sort_by)
+    return render_template(
+        'index.html', warehouses=warehouses, current_sort=sort_by
+    )
 
 
 @app.route('/warehouse/create', methods=['GET', 'POST'])

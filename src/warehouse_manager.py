@@ -7,6 +7,7 @@ class WarehouseManager:
     def __init__(self):
         self.warehouses = {}
         self.warehouse_items = {}
+        self.warehouse_order = []  # Track creation order
 
     def create_warehouse(self, name, capacity):
         """Create a new warehouse with the given name and capacity."""
@@ -14,6 +15,7 @@ class WarehouseManager:
             raise ValueError(f"Warehouse '{name}' already exists")
         self.warehouses[name] = Varasto(capacity)
         self.warehouse_items[name] = {}
+        self.warehouse_order.append(name)  # Track creation order
         return self.warehouses[name]
 
     def delete_warehouse(self, name):
@@ -22,6 +24,7 @@ class WarehouseManager:
             raise ValueError(f"Warehouse '{name}' does not exist")
         del self.warehouses[name]
         del self.warehouse_items[name]
+        self.warehouse_order.remove(name)  # Remove from order tracking
 
     def get_warehouse(self, name):
         """Get a warehouse by name."""
@@ -29,17 +32,43 @@ class WarehouseManager:
             raise ValueError(f"Warehouse '{name}' does not exist")
         return self.warehouses[name]
 
-    def get_all_warehouses(self):
-        """Get all warehouses as a list of dicts with their info."""
+    def get_all_warehouses(self, sort_by='newest'):
+        """Get all warehouses as a list of dicts with their info.
+
+        Args:
+            sort_by: Sort order - 'newest', 'oldest',
+                     'most_space', 'least_space'
+        """
         result = []
         for name, warehouse in self.warehouses.items():
             result.append({
                 'name': name,
-                'capacity': warehouse.tilavuus,
-                'balance': warehouse.saldo,
-                'free_space': warehouse.paljonko_mahtuu(),
-                'warehouse_items': self.warehouse_items[name]
+                'capacity': int(warehouse.tilavuus),
+                'balance': int(warehouse.saldo),
+                'free_space': int(warehouse.paljonko_mahtuu()),
+                'warehouse_items': {
+                    item_name: int(amount)
+                    for item_name, amount in self.warehouse_items[name].items()
+                }
             })
+
+        # Sort based on the sort_by parameter
+        if sort_by == 'newest':
+            # Most recently created first
+            result.sort(
+                key=lambda w: self.warehouse_order.index(w['name']),
+                reverse=True
+            )
+        elif sort_by == 'oldest':
+            # Oldest created first
+            result.sort(key=lambda w: self.warehouse_order.index(w['name']))
+        elif sort_by == 'most_space':
+            # Most free space first
+            result.sort(key=lambda w: w['free_space'], reverse=True)
+        elif sort_by == 'least_space':
+            # Least free space first
+            result.sort(key=lambda w: w['free_space'])
+
         return result
 
     def update_warehouse(self, old_name, new_name, new_capacity):
@@ -70,6 +99,9 @@ class WarehouseManager:
             self.warehouse_items[new_name] = self.warehouse_items[old_name]
             del self.warehouses[old_name]
             del self.warehouse_items[old_name]
+            # Update order tracking
+            index = self.warehouse_order.index(old_name)
+            self.warehouse_order[index] = new_name
         else:
             self.warehouses[old_name] = new_warehouse
 

@@ -8,7 +8,18 @@
 </div>
 
 {% if warehouses %}
-    <h2>Warehouses</h2>
+    <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="margin: 0;">Warehouses</h2>
+        <div>
+            <label for="sort-select" style="margin-right: 10px;">Sort by:</label>
+            <select id="sort-select" onchange="window.location.href='/?sort='+this.value" style="padding: 5px 10px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Most Recently Created</option>
+                <option value="oldest" {% if current_sort == 'oldest' %}selected{% endif %}>Oldest First</option>
+                <option value="most_space" {% if current_sort == 'most_space' %}selected{% endif %}>Most Space Left</option>
+                <option value="least_space" {% if current_sort == 'least_space' %}selected{% endif %}>Least Space Left</option>
+            </select>
+        </div>
+    </div>
     {% for warehouse in warehouses %}
         <div style="border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; border-radius: 4px;">
             <h3 style="margin-top: 0;">{{ warehouse.name }}</h3>
