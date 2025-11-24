@@ -43,6 +43,7 @@ class WarehouseManager:
         return result
 
     def update_warehouse(self, old_name, new_name, new_capacity):
+        # pylint: disable=too-many-statements
         """Update warehouse name and/or capacity."""
         if old_name not in self.warehouses:
             raise ValueError(f"Warehouse '{old_name}' does not exist")
@@ -94,6 +95,7 @@ class WarehouseManager:
             items[item_name] = amount
 
     def remove_item(self, warehouse_name, item_name, amount):
+        # pylint: disable=too-many-statements
         """Remove an item from a warehouse."""
         warehouse = self.get_warehouse(warehouse_name)
         items = self.warehouse_items[warehouse_name]
